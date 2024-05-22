@@ -1,0 +1,149 @@
+buildscript {
+    repositories {
+        maven { url "https://maven.minecraftforge.net" }
+        maven { url 'https://repo.spongepowered.org/maven'}
+    }
+    dependencies {
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+    }
+}
+
+plugins {
+    id "java"
+    id "com.github.johnrengelman.shadow" version "2.0.4"
+}
+
+apply plugin: "net.minecraftforge.gradle.forge"
+apply plugin: 'org.spongepowered.mixin'
+
+version = "1.0.0"
+group = "io.github.azurejelly"
+archivesBaseName = "logarithmic-volume-legacy"
+
+sourceCompatibility = targetCompatibility = 1.8
+compileJava.options.encoding = "UTF-8"
+
+minecraft {
+    version = "1.8.9-11.15.1.2318-1.8.9"
+    runDir = "run"
+    mappings = "stable_22"
+    makeObfSourceJar = false
+}
+
+configurations {
+    shade
+    compile.extendsFrom(shade)
+}
+
+repositories {
+    maven { url 'https://repo.spongepowered.org/maven/' }
+}
+
+def systemOs = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
+
+dependencies {
+    shade('org.spongepowered:mixin:0.7.10-SNAPSHOT') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+        exclude module: 'gson'
+        exclude module: 'commons-io'
+        exclude module: 'log4j-core'
+    }
+
+    if (systemOs.contains("mac"))
+    {
+        compile 'org.lwjgl.lwjgl:lwjgl_util:2.9.4-nightly-20150209'
+        compile 'org.lwjgl.lwjgl:lwjgl:2.9.4-nightly-20150209'
+        compile 'org.lwjgl.lwjgl:lwjgl-platform:2.9.4-nightly-20150209'
+    }
+    else if (systemOs.contains("linux"))
+    {
+        compile 'org.lwjgl.lwjgl:lwjgl_util:2.9.4-babric.1'
+        compile 'org.lwjgl.lwjgl:lwjgl:2.9.4-babric.1'
+        compile 'org.lwjgl.lwjgl:lwjgl-platform:2.9.4-babric.1'
+    }
+}
+
+if (systemOs.contains("mac"))
+{
+    configurations.all
+    {
+        resolutionStrategy
+        {
+            dependencySubstitution
+            {
+                substitute module('org.lwjgl.lwjgl:lwjgl_util:2.9.2-nightly-201408222') with module('org.lwjgl.lwjgl:lwjgl_util:2.9.4-nightly-20150209')
+                substitute module('org.lwjgl.lwjgl:lwjgl:2.9.2-nightly-201408222') with module('org.lwjgl.lwjgl:lwjgl:2.9.4-nightly-20150209')
+            }
+            force 'org.lwjgl.lwjgl:lwjgl-platform:2.9.4-nightly-20150209'
+        }
+    }
+} else if (systemOs.contains("linux"))
+{
+    configurations.all
+    {
+        resolutionStrategy
+        {
+            dependencySubstitution
+            {
+                substitute module('org.lwjgl.lwjgl:lwjgl_util:2.9.4-nightly-20150209') using module('org.lwjgl.lwjgl:lwjgl_util:2.9.4-babric.1')
+                substitute module('org.lwjgl.lwjgl:lwjgl:2.9.4-nightly-20150209') using module('org.lwjgl.lwjgl:lwjgl:2.9.4-babric.1')
+            }
+            force 'org.lwjgl.lwjgl:lwjgl-platform:2.9.4-babric.1'
+        }
+    }
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include "mcmod.info"
+        expand "version":project.version, "mcversion":project.minecraft.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "mcmod.info"
+    }
+
+    rename '(.+_at.cfg)', 'META-INF/$1'
+}
+
+shadowJar {
+    dependencies {}
+    configurations = [project.configurations.shade] // Adds the gradle configuration "shade" so we can use it.
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE // Prevents duplicates
+    classifier ""
+}
+
+reobf {
+    shadowJar {}
+}
+
+jar {
+    manifest.attributes(
+        "FMLCorePlugin" : "io.github.azurejelly.volumefix.mixins.MixinLoader",
+        "ForceLoadAsMod": true,
+        "TweakOrder": 0,
+        "ModSide": "CLIENT",
+        'FMLCorePluginContainsFMLMod': true,
+        'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+        'MixinConfigs': 'mixins.logarithmic-volume-legacy.json'
+    )
+}
+
+sourceSets {
+    main {
+        ext.refMap = "mixins.logarithmic-volume-legacy.refmap.json"
+    }
+}
+
+task buildCopyToRunModsAndRun(type: Copy, dependsOn: 'build') {
+    from "build/libs"
+    into "run/mods"
+    include "*.jar"
+}
+
+buildCopyToRunModsAndRun.finalizedBy runClient

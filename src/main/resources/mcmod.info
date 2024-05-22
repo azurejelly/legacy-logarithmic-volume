@@ -1,0 +1,16 @@
+[
+{
+  "modid": "logarithmic-volume-legacy",
+  "name": "Logarithmic Volume Legacy",
+  "description": "fixes minecraft volume (why does this mod even have to exist)",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["girlbossdev", "azurejelly"],
+  "credits": "manuthebyte for the 1.8.9 forge with mixins template",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

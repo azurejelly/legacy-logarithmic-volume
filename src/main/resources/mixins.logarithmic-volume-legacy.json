@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.7",
+  "package": "io.github.azurejelly.volumefix.mixins",
+  "refmap": "mixins.logarithmic-volume-legacy.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "GameSettingsMixin",
+    "SoundManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
