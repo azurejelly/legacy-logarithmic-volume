@@ -1,4 +1,4 @@
-# Logarithmic Volume Legacy
+# Logarithmic Volume Control Legacy
 [Logarithmic Volume Control](https://modrinth.com/mod/logarithmic-volume-control) backported to Forge 1.8.9, because I could not ~~unsee~~ unhear it. Originally made by [girlbossdev](https://github.com/girlbossdev).
 
 ## Cloning, building and running
