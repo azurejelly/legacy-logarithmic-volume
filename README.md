@@ -3,8 +3,8 @@
 
 ## Cloning, building and running
 ```shell
-git clone https://github.com/azurejelly/logarithmic-volume-legacy
-cd logarithmic-volume-legacy
+git clone https://github.com/azurejelly/legacy-logarithmic-volume
+cd legacy-logarithmic-volume
 ./gradlew setupDecompWorkspace # setup workspace (might require -Xmx4G in jvm args)
 ```
 
